@@ -297,7 +297,7 @@ var edgeShim = {
 
     // Start the RTP Sender and Receiver for a transceiver.
     window.RTCPeerConnection.prototype._transceive = function(transceiver,
-                                                              send, recv,chcodec=false) {
+                                                              send, recv) {
       var params = this._getCommonCapabilities(transceiver.localCapabilities,
         transceiver.remoteCapabilities);
       if (send && transceiver.rtpSender) {
@@ -318,12 +318,6 @@ var edgeShim = {
           cname: transceiver.cname,
           ssrc: transceiver.sendSsrc
         };
-        if(chcodec==true){
-          for (var i = 0; i < params.codecs.length; i++) {
-            if(params.codecs[i].payloadType==109)
-              params.codecs[i].payloadType=106
-          }
-        }
         transceiver.rtpReceiver.receive(params);
       }
     };
@@ -572,7 +566,7 @@ var edgeShim = {
 
             self._transceive(transceiver,
               direction === 'sendrecv' || direction === 'recvonly',
-              direction === 'sendrecv' || direction === 'sendonly',true);
+              direction === 'sendrecv' || direction === 'sendonly');
 
             if (rtpReceiver &&
               (direction === 'sendrecv' || direction === 'sendonly')) {
