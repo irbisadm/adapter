@@ -1,3 +1,4 @@
+
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -11,6 +12,10 @@ var logging = require('../utils.js').log;
 var browserDetails = require('../utils.js').browserDetails;
 
 var chromeShim = {
+  shimMediaStream: function() {
+    window.MediaStream = window.MediaStream || window.webkitMediaStream;
+  },
+
   shimOnTrack: function() {
     if (typeof window === 'object' && window.RTCPeerConnection && !('ontrack' in
         window.RTCPeerConnection.prototype)) {
@@ -130,9 +135,21 @@ var chromeShim = {
           return standardReport;
         };
 
+        // shim getStats with maplike support
+        var makeMapStats = function(stats, legacyStats) {
+          var map = new Map(Object.keys(stats).map(function(key) {
+            return[key, stats[key]];
+          }));
+          legacyStats = legacyStats || stats;
+          Object.keys(legacyStats).forEach(function(key) {
+            map[key] = legacyStats[key];
+          });
+          return map;
+        };
+
         if (arguments.length >= 2) {
           var successCallbackWrapper_ = function(response) {
-            args[1](fixChromeStats_(response));
+            args[1](makeMapStats(fixChromeStats_(response)));
           };
 
           return origGetStats.apply(this, [successCallbackWrapper_,
@@ -142,14 +159,19 @@ var chromeShim = {
         // promise-support
         return new Promise(function(resolve, reject) {
           if (args.length === 1 && typeof selector === 'object') {
-            origGetStats.apply(self,
-                [function(response) {
-                  resolve.apply(null, [fixChromeStats_(response)]);
-                }, reject]);
+            origGetStats.apply(self, [
+              function(response) {
+                resolve(makeMapStats(fixChromeStats_(response)));
+              }, reject]);
           } else {
-            origGetStats.apply(self, [resolve, reject]);
+            // Preserve legacy chrome stats only on legacy access of stats obj
+            origGetStats.apply(self, [
+              function(response) {
+                resolve(makeMapStats(fixChromeStats_(response),
+                    response.result()));
+              }, reject]);
           }
-        });
+        }).then(successCallback, errorCallback);
       };
 
       return pc;
@@ -165,13 +187,12 @@ var chromeShim = {
       });
     }
 
-    // add promise support
     ['createOffer', 'createAnswer'].forEach(function(method) {
       var nativeMethod = webkitRTCPeerConnection.prototype[method];
       webkitRTCPeerConnection.prototype[method] = function() {
         var self = this;
         if (arguments.length < 1 || (arguments.length === 1 &&
-            typeof(arguments[0]) === 'object')) {
+            typeof arguments[0] === 'object')) {
           var opts = arguments.length === 1 ? arguments[0] : undefined;
           return new Promise(function(resolve, reject) {
             nativeMethod.apply(self, [resolve, reject, opts]);
@@ -181,30 +202,50 @@ var chromeShim = {
       };
     });
 
+    // add promise support -- natively available in Chrome 51
+    if (browserDetails.version < 51) {
+      ['setLocalDescription', 'setRemoteDescription', 'addIceCandidate']
+          .forEach(function(method) {
+            var nativeMethod = webkitRTCPeerConnection.prototype[method];
+            webkitRTCPeerConnection.prototype[method] = function() {
+              var args = arguments;
+              var self = this;
+              var promise = new Promise(function(resolve, reject) {
+                nativeMethod.apply(self, [args[0], resolve, reject]);
+              });
+              if (args.length < 2) {
+                return promise;
+              }
+              return promise.then(function() {
+                args[1].apply(null, []);
+              },
+              function(err) {
+                if (args.length >= 3) {
+                  args[2].apply(null, [err]);
+                }
+              });
+            };
+          });
+    }
+
+    // shim implicit creation of RTCSessionDescription/RTCIceCandidate
     ['setLocalDescription', 'setRemoteDescription', 'addIceCandidate']
         .forEach(function(method) {
           var nativeMethod = webkitRTCPeerConnection.prototype[method];
           webkitRTCPeerConnection.prototype[method] = function() {
-            var args = arguments;
-            var self = this;
-            return new Promise(function(resolve, reject) {
-              nativeMethod.apply(self, [args[0],
-                  function() {
-                    resolve();
-                    if (args.length >= 2) {
-                      args[1].apply(null, []);
-                    }
-                  },
-                  function(err) {
-                    reject(err);
-                    if (args.length >= 3) {
-                      args[2].apply(null, [err]);
-                    }
-                  }]
-                );
-            });
+            arguments[0] = new ((method === 'addIceCandidate') ?
+                RTCIceCandidate : RTCSessionDescription)(arguments[0]);
+            return nativeMethod.apply(this, arguments);
           };
         });
+
+    // support for addIceCandidate(null)
+    var nativeAddIceCandidate =
+        RTCPeerConnection.prototype.addIceCandidate;
+    RTCPeerConnection.prototype.addIceCandidate = function() {
+      return arguments[0] === null ? Promise.resolve()
+          : nativeAddIceCandidate.apply(this, arguments);
+    };
   },
 
   // Attach a media stream to an element.
@@ -232,6 +273,7 @@ var chromeShim = {
 
 // Expose public methods.
 module.exports = {
+  shimMediaStream: chromeShim.shimMediaStream,
   shimOnTrack: chromeShim.shimOnTrack,
   shimSourceObject: chromeShim.shimSourceObject,
   shimPeerConnection: chromeShim.shimPeerConnection,

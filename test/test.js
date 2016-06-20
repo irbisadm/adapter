@@ -98,7 +98,7 @@ test('Browser identified', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(4);
     t.pass('Page loaded');
@@ -130,7 +130,7 @@ test('Browser supported by adapter.js', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(2);
     t.pass('Page loaded');
@@ -171,7 +171,7 @@ test('navigator.mediaDevices.getUserMedia', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -209,7 +209,7 @@ test('getUserMedia shim', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -241,7 +241,7 @@ test('navigator.mediaDevices eventlisteners', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -271,11 +271,31 @@ test('navigator.mediaDevices eventlisteners', function(t) {
   });
 });
 
+test('MediaStream shim', function(t) {
+  var driver = seleniumHelpers.buildDriver();
+
+  // Run test.
+  seleniumHelpers.loadTestPage(driver)
+  .then(function() {
+    t.pass('Page loaded');
+    return driver.executeScript(
+      'return window.MediaStream !== \'undefined\'');
+  })
+  .then(function(isMediaStreamDefined) {
+    t.ok(isMediaStreamDefined, 'MediaStream is defined');
+    t.end();
+  })
+  .then(null, function(err) {
+    t.fail(err);
+    t.end();
+  });
+});
+
 test('RTCPeerConnection shim', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(4);
     t.pass('Page loaded');
@@ -306,7 +326,7 @@ test('Create RTCPeerConnection', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(2);
     t.pass('Page loaded');
@@ -356,7 +376,7 @@ test('attachMediaStream', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(6);
     t.pass('Page loaded');
@@ -444,7 +464,7 @@ test('reattachMediaStream', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(9);
     t.pass('Page loaded');
@@ -537,7 +557,7 @@ test('Video srcObject getter/setter test', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -603,7 +623,7 @@ test('Audio srcObject getter/setter test', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -674,7 +694,7 @@ test('srcObject set from another object', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -738,7 +758,7 @@ test('srcObject null setter', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(3);
     t.pass('Page loaded');
@@ -804,7 +824,7 @@ test('Attach mediaStream directly', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(6);
     t.pass('Page loaded');
@@ -892,7 +912,7 @@ test('Re-attaching mediaStream directly', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(9);
     t.pass('Page loaded');
@@ -993,7 +1013,7 @@ test('Call getUserMedia with impossible constraints',
       };
 
       // Run test.
-      driver.get('file://' + process.cwd() + '/test/testpage.html')
+      seleniumHelpers.loadTestPage(driver)
       .then(function() {
         t.plan(2);
         t.pass('Page loaded');
@@ -1241,7 +1261,7 @@ test('Check getUserMedia legacy constraints converter', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     // t.plan(2);
     t.pass('Page loaded');
@@ -1312,19 +1332,16 @@ test('Basic connection establishment', function(t) {
     };
 
     var addCandidate = function(pc, event) {
-      if (event.candidate) {
-        var cand = new RTCIceCandidate(event.candidate);
-        pc.addIceCandidate(cand,
-          function() {
-            // TODO: Decide if we are intereted in adding all candidates
-            // as passed tests.
-            tc.pass('addIceCandidate ' + counter++);
-          },
-          function(err) {
-            tc.fail('addIceCandidate ' + err.toString());
-          }
-        );
-      }
+      pc.addIceCandidate(event.candidate,
+        function() {
+          // TODO: Decide if we are interested in adding all candidates
+          // as passed tests.
+          tc.pass('addIceCandidate ' + counter++);
+        },
+        function(err) {
+          tc.fail('addIceCandidate ' + err.toString());
+        }
+      );
     };
     pc1.onicecandidate = function(event) {
       addCandidate(pc2, event);
@@ -1395,7 +1412,7 @@ test('Basic connection establishment', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1460,18 +1477,17 @@ test('Basic connection establishment with promise', function(t) {
       }
     };
 
+    var dictionary = obj => JSON.parse(JSON.stringify(obj));
+
     var addCandidate = function(pc, event) {
-      if (event.candidate) {
-        var cand = new RTCIceCandidate(event.candidate);
-        pc.addIceCandidate(cand).then(function() {
-          // TODO: Decide if we are interested in adding all candidates
-          // as passed tests.
-          tc.pass('addIceCandidate ' + counter++);
-        })
-        .catch(function(err) {
-          tc.fail('addIceCandidate ' + err.toString());
-        });
-      }
+      pc.addIceCandidate(dictionary(event.candidate)).then(function() {
+        // TODO: Decide if we are interested in adding all candidates
+        // as passed tests.
+        tc.pass('addIceCandidate ' + counter++);
+      })
+      .catch(function(err) {
+        tc.fail('addIceCandidate ' + err.toString());
+      });
     };
     pc1.onicecandidate = function(event) {
       addCandidate(pc2, event);
@@ -1486,19 +1502,19 @@ test('Basic connection establishment with promise', function(t) {
       pc1.addStream(stream);
       pc1.createOffer().then(function(offer) {
         tc.pass('pc1.createOffer');
-        return pc1.setLocalDescription(offer);
+        return pc1.setLocalDescription(dictionary(offer));
       }).then(function() {
         tc.pass('pc1.setLocalDescription');
-        return pc2.setRemoteDescription(pc1.localDescription);
+        return pc2.setRemoteDescription(dictionary(pc1.localDescription));
       }).then(function() {
         tc.pass('pc2.setRemoteDescription');
         return pc2.createAnswer();
       }).then(function(answer) {
         tc.pass('pc2.createAnswer');
-        return pc2.setLocalDescription(answer);
+        return pc2.setLocalDescription(dictionary(answer));
       }).then(function() {
         tc.pass('pc2.setLocalDescription');
-        return pc1.setRemoteDescription(pc2.localDescription);
+        return pc1.setRemoteDescription(dictionary(pc2.localDescription));
       }).then(function() {
         tc.pass('pc1.setRemoteDescription');
       }).catch(function(err) {
@@ -1511,7 +1527,7 @@ test('Basic connection establishment with promise', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1590,17 +1606,14 @@ test('Basic connection establishment with datachannel', function(t) {
     };
 
     var addCandidate = function(pc, event) {
-      if (event.candidate) {
-        var cand = new RTCIceCandidate(event.candidate);
-        pc.addIceCandidate(cand).then(function() {
-          // TODO: Decide if we are interested in adding all candidates
-          // as passed tests.
-          tc.pass('addIceCandidate ' + counter++);
-        })
-        .catch(function(err) {
-          tc.fail('addIceCandidate ' + err.toString());
-        });
-      }
+      pc.addIceCandidate(event.candidate).then(function() {
+        // TODO: Decide if we are interested in adding all candidates
+        // as passed tests.
+        tc.pass('addIceCandidate ' + counter++);
+      })
+      .catch(function(err) {
+        tc.fail('addIceCandidate ' + err.toString());
+      });
     };
     pc1.onicecandidate = function(event) {
       addCandidate(pc2, event);
@@ -1633,7 +1646,7 @@ test('Basic connection establishment with datachannel', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1673,6 +1686,35 @@ test('Basic connection establishment with datachannel', function(t) {
   });
 });
 
+test('addIceCandidate with null', function(t) {
+  var driver = seleniumHelpers.buildDriver();
+
+  var testDefinition = function() {
+    var callback = arguments[arguments.length - 1];
+
+    var pc1 = new RTCPeerConnection(null);
+    pc1.addIceCandidate(null)
+    .then(callback)
+    .catch(callback);
+  };
+  // Run test.
+  seleniumHelpers.loadTestPage(driver)
+  .then(function() {
+    t.pass('Page loaded');
+    return driver.executeAsyncScript(testDefinition);
+  })
+  .then(function(err) {
+    t.ok(err === null, 'addIceCandidate(null) resolves');
+    t.end();
+  })
+  .then(null, function(err) {
+    if (err !== 'skip-test') {
+      t.fail(err);
+    }
+    t.end();
+  });
+});
+
 test('call enumerateDevices', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
@@ -1689,7 +1731,7 @@ test('call enumerateDevices', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1723,7 +1765,7 @@ test('call enumerateDevices', function(t) {
   });
 });
 
-// Test Chrome polyfill for getStats.
+// Test polyfill for getStats.
 test('getStats', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
@@ -1738,15 +1780,23 @@ test('getStats', function(t) {
       pc1.getStats(null, resolve, reject);
     })
     .then(function(report) {
-      window.testsEqualArray.push([typeof(report), 'object',
+      window.testsEqualArray.push([typeof report, 'object',
           'report is an object.']);
+      report.forEach((stat, key) => {
+        window.testsEqualArray.push([stat.id, key,
+            'report key matches stats id.']);
+      });
+      return report;
+    })
+    .then(function(report) {
+      // Test legacy behavior
       for (var key in report) {
         // This avoids problems with Firefox
-        if (typeof(report[key]) === 'function') {
+        if (typeof report[key] === 'function') {
           continue;
         }
         window.testsEqualArray.push([report[key].id, key,
-            'report key matches stats id.']);
+            'legacy report key matches stats id.']);
       }
       callback(null);
     })
@@ -1756,7 +1806,7 @@ test('getStats', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1833,7 +1883,7 @@ test('originalChromeGetStats', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeScript('return adapter.browserDetails.browser')
@@ -1924,7 +1974,7 @@ test('getStats promise', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeAsyncScript(testDefinition);
@@ -1970,83 +2020,86 @@ test('getStats promise', function(t) {
 // iceTransportPolicy is renamed to iceTransports in Chrome by
 // adapter, this tests that when not setting any TURN server,
 // no candidates are generated.
-test('iceTransportPolicy relay functionality', function(t) {
-  var driver = seleniumHelpers.buildDriver();
+test('iceTransportPolicy relay functionality',
+    {skip: process.env.BROWSER !== 'chrome'},
+    function(t) {
+      var driver = seleniumHelpers.buildDriver();
 
-  // Define test.
-  var testDefinition = function() {
-    var callback = arguments[arguments.length - 1];
+      // Define test.
+      var testDefinition = function() {
+        var callback = arguments[arguments.length - 1];
 
-    window.candidates = [];
+        window.candidates = [];
 
-    var pc1 = new RTCPeerConnection({iceTransportPolicy: 'relay',
-        iceServers: []});
+        var pc1 = new RTCPeerConnection({iceTransportPolicy: 'relay',
+            iceServers: []});
 
-    // Since we try to gather only relay candidates without specifying
-    // a TURN server, we should not get any candidates.
-    pc1.onicecandidate = function(event) {
-      window.candidates.push([event.candidate]);
-      callback(new Error('Candidate found'));
-    };
+        // Since we try to gather only relay candidates without specifying
+        // a TURN server, we should not get any candidates.
+        pc1.onicecandidate = function(event) {
+          if (event.candidate) {
+            window.candidates.push([event.candidate]);
+            callback(new Error('Candidate found'), event.candidate);
+          } else {
+            callback(null);
+          }
+        };
 
-    var constraints = {video: true, fake: true};
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream) {
-      pc1.addStream(stream);
-      pc1.createOffer().then(function(offer) {
-        return pc1.setLocalDescription(offer).then(function() {
-          // We are done.
-          return callback(null);
+        var constraints = {video: true, fake: true};
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+          pc1.addStream(stream);
+          pc1.createOffer().then(function(offer) {
+            return pc1.setLocalDescription(offer);
+          })
+          .catch(function(error) {
+            callback(error);
+          });
+        })
+        .catch(function(error) {
+          callback(error);
         });
-      })
-      .catch(function(error) {
-        callback(error);
-      });
-    })
-    .catch(function(error) {
-      callback(error);
-    });
-  };
+      };
 
-  // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
-  .then(function() {
-    t.pass('Page loaded');
-    return driver.executeAsyncScript(testDefinition);
-  })
-  .then(function(error) {
-    var errorMessage = (error) ? 'error: ' + error.toString() : 'no errors';
-    t.ok(!error, 'Result:  ' + errorMessage);
-    // We should not really need this due to using an error callback if a
-    // candidate is found but I'm not sure we will catch due to async nature
-    // of this, hence why this is kept.
-    return driver.executeScript('return window.candidates');
-  })
-  .then(function(candidates) {
-    if (candidates.length === 0) {
-      t.pass('No candidates generated');
-    } else {
-      candidates.forEach(function(candidate) {
-        t.fail('Candidate found: ' + candidate);
+      // Run test.
+      seleniumHelpers.loadTestPage(driver)
+      .then(function() {
+        t.pass('Page loaded');
+        return driver.executeAsyncScript(testDefinition);
+      })
+      .then(function(error) {
+        var errorMessage = (error) ? 'error: ' + error.toString() : 'no errors';
+        t.ok(!error, 'Result:  ' + errorMessage);
+        // We should not really need this due to using an error callback if a
+        // candidate is found but I'm not sure we will catch due to async nature
+        // of this, hence why this is kept.
+        return driver.executeScript('return window.candidates');
+      })
+      .then(function(candidates) {
+        if (candidates.length === 0) {
+          t.pass('No candidates generated');
+        } else {
+          candidates.forEach(function(candidate) {
+            t.fail('Candidate found: ' + candidate);
+          });
+        }
+      })
+      .then(function() {
+        t.end();
+      })
+      .then(null, function(err) {
+        if (err !== 'skip-test') {
+          t.fail(err);
+        }
+        t.end();
       });
-    }
-  })
-  .then(function() {
-    t.end();
-  })
-  .then(null, function(err) {
-    if (err !== 'skip-test') {
-      t.fail(err);
-    }
-    t.end();
-  });
-});
+    });
 
 test('static generateCertificate method', function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.plan(2);
     t.pass('Page loaded');
@@ -2083,7 +2136,7 @@ test('static generateCertificate method', function(t) {
 });
 
 // ontrack is shimmed in Chrome so we test that it is called.
-test('ontrack', function(t) {
+test('ontrack', {skip: process.env.BROWSER === 'firefox'}, function(t) {
   var driver = seleniumHelpers.buildDriver();
 
   var testDefinition = function() {
@@ -2116,12 +2169,9 @@ test('ontrack', function(t) {
     };
 
     var addCandidate = function(pc, event) {
-      if (event.candidate) {
-        var cand = new RTCIceCandidate(event.candidate);
-        pc.addIceCandidate(cand).catch(function(err) {
-          tc.fail('addIceCandidate ' + err.toString());
-        });
-      }
+      pc.addIceCandidate(event.candidate).catch(function(err) {
+        tc.fail('addIceCandidate ' + err.toString());
+      });
     };
     pc1.onicecandidate = function(event) {
       addCandidate(pc2, event);
@@ -2173,7 +2223,7 @@ test('ontrack', function(t) {
   // plan for 7 tests.
   t.plan(7);
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     return driver.executeAsyncScript(testDefinition);
   })
@@ -2188,7 +2238,6 @@ test('ontrack', function(t) {
   .then(function(pc1ConnectionStatus) {
     t.ok(pc1ConnectionStatus === 'completed' || 'connected',
       'P2P connection established');
-    driver.sleep(1000); // flaky in firefox
     return driver.executeScript('return window.testPassed');
   })
   .then(function(testPassed) {
@@ -2247,7 +2296,7 @@ test('Non-module logging to console still works', function(t) {
   };
 
   // Run test.
-  driver.get('file://' + process.cwd() + '/test/testpage.html')
+  seleniumHelpers.loadTestPage(driver)
   .then(function() {
     t.pass('Page loaded');
     return driver.executeScript(testDefinition);
